@@ -27,19 +27,27 @@ def get_pages():
 
 
 def get_jobs(page, max_pages):
-    response = requests.get(f"{INDEED_URL}&start={page}")
+    url = f"{INDEED_URL}&start={page}"
+    response = requests.get(url)
     print(f"Scrapping page: {page}")
     if response.status_code == 200:
         soup = BeautifulSoup(response.text, "html.parser")
         results = soup.findAll("div", {"class": "jobsearch-SerpJobCard"})
         for result in results:
             job = {}
-            job_title = result.find("a", {"class": "jobtitle"})
-            job["title"] = job_title["title"]
+            job["title"] = result.find("a", {"class": "jobtitle"})["title"]
+            job["company"] = result.find("span", {"class": "company"}).get_text(
+                strip=True
+            )
+            job["location"] = result.find("span", {"class": "location"}).get_text(
+                strip=True
+            )
+            job["apply_link"] = f"https://www.indeed.com/viewjob?jk={result['data-jk']}"
             indeed_jobs.append(job)
         next_page = page + INDEED_LIMIT
         if next_page <= max_pages:
-            get_jobs(page + INDEED_LIMIT, max_pages)
+            # get_jobs(page + INDEED_LIMIT, max_pages)
+            pass
     else:
         print("Error!")
 
