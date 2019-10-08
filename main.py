@@ -6,10 +6,10 @@ INDEED_LIMIT = 50
 INDEED_URL = f"https://www.indeed.com/jobs?as_and=python&radius=25&fromage=3&limit={INDEED_LIMIT}&sort=date&psf=advsrch"
 
 
-indeed_jobs = []
+jobs = []
 
 
-def get_pages():
+def get_indeed_pages():
     response = requests.get(INDEED_URL)
     if response.status_code == 200:
         soup = BeautifulSoup(response.text, "html.parser")
@@ -26,7 +26,22 @@ def get_pages():
         print("Can't get pages")
 
 
-def get_jobs(page, max_pages):
+def extract_indeed_job(job_html):
+    title = job_html.find("a", {"class": "jobtitle"})["title"]
+    company = job_html.find("span", {"class": "company"}).get_text(strip=True)
+    location = job_html.find("span", {"class": "location"}).get_text(strip=True)
+    job_id = job_html["data-jk"]
+    apply_link = f"https://www.indeed.com/viewjob?jk={job_id}"
+    job = {
+        "title": title,
+        "company": company,
+        "location": location,
+        "apply_link": apply_link,
+    }
+    return job
+
+
+def get_indeed_jobs(page, max_pages):
     url = f"{INDEED_URL}&start={page}"
     response = requests.get(url)
     print(f"Scrapping page: {page}")
@@ -34,24 +49,15 @@ def get_jobs(page, max_pages):
         soup = BeautifulSoup(response.text, "html.parser")
         results = soup.findAll("div", {"class": "jobsearch-SerpJobCard"})
         for result in results:
-            job = {}
-            job["title"] = result.find("a", {"class": "jobtitle"})["title"]
-            job["company"] = result.find("span", {"class": "company"}).get_text(
-                strip=True
-            )
-            job["location"] = result.find("span", {"class": "location"}).get_text(
-                strip=True
-            )
-            job["apply_link"] = f"https://www.indeed.com/viewjob?jk={result['data-jk']}"
-            indeed_jobs.append(job)
+            job = extract_indeed_job(result)
+            jobs.append(job)
         next_page = page + INDEED_LIMIT
         if next_page <= max_pages:
-            # get_jobs(page + INDEED_LIMIT, max_pages)
-            pass
+            get_indeed_jobs(page + INDEED_LIMIT, max_pages)
     else:
         print("Error!")
 
 
-max_pages = get_pages()
-get_jobs(0, max_pages)
-print(indeed_jobs)
+max_pages = get_indeed_pages()
+get_indeed_jobs(0, max_pages)
+print(jobs)
