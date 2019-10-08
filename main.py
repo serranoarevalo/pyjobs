@@ -3,7 +3,7 @@ import requests
 from bs4 import BeautifulSoup
 
 INDEED_LIMIT = 50
-INDEED_URL = f"https://www.indeed.com/jobs?as_and=python&radius=25&fromage=3&limit={INDEED_LIMIT}&sort=date&psf=advsrch"
+INDEED_URL = "https://www.indeed.com/jobs?as_and=python&radius=25&fromage=3&limit={INDEED_LIMIT}&sort=date&psf=advsrch"
 
 
 indeed_jobs = []
