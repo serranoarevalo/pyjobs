@@ -4,6 +4,9 @@ from bs4 import BeautifulSoup
 SO_URL = "https://stackoverflow.com/jobs?q=python&sort=i"
 
 
+so_jobs = []
+
+
 def get_so_pages():
     response = requests.get(SO_URL)
     if response.status_code == 200:
@@ -21,6 +24,22 @@ def get_so_pages():
     return
 
 
+def extract_job(job_html):
+    title = (
+        job_html.find("div", {"class": "-title"})
+        .find("h2", {"class": "job-details__spaced"})
+        .find("a")["title"]
+    )
+    subtitle = list(
+        job_html.find("div", {"class": "-company"}).findAll("span", recursive=False)
+    )
+    company = subtitle[0].get_text(strip=True)
+    location = subtitle[1].get_text(strip=True)
+    location = location.strip("-").strip(" \r").strip("\n")
+    job = {"title": title, "company": company, "location": location}
+    return job
+
+
 def scrape_jobs(max_pages, page=0):
     url = f"{SO_URL}&pg={page}"
     response = requests.get(url)
@@ -29,11 +48,15 @@ def scrape_jobs(max_pages, page=0):
         soup = BeautifulSoup(response.text, "html.parser")
         results = soup.findAll("div", {"class": "-job"})
         for result in results:
-            print(result)
+            job = extract_job(result)
+            so_jobs.append(job)
+        next_page = page + 1
+        if next_page <= max_pages:
+            scrape_jobs(max_pages, page + 1)
     return
 
 
 def get_so_jobs():
     pages = get_so_pages()
     scrape_jobs(max_pages=pages)
-    print(pages)
+    return so_jobs

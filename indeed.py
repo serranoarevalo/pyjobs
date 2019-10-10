@@ -5,8 +5,6 @@ from bs4 import BeautifulSoup
 INDEED_LIMIT = 50
 INDEED_URL = f"https://www.indeed.com/jobs?as_and=python&radius=25&fromage=3&limit={INDEED_LIMIT}&sort=date&psf=advsrch"
 
-SO_URL = f"https://stackoverflow.com/jobs?q=python&sort=i"
-
 jobs = []
 
 
@@ -29,8 +27,12 @@ def get_indeed_pages():
 
 def extract_indeed_job(job_html):
     title = job_html.find("a", {"class": "jobtitle"})["title"]
-    company = job_html.find("span", {"class": "company"}).get_text(strip=True)
-    location = job_html.find("span", {"class": "location"}).get_text(strip=True)
+    company = job_html.find("span", {"class": "company"})
+    if company:
+        company = company.get_text(strip=True)
+    location = job_html.find("span", {"class": "location"})
+    if location:
+        location = location.get_text(strip=True)
     job_id = job_html["data-jk"]
     apply_link = f"https://www.indeed.com/viewjob?jk={job_id}"
     job = {
