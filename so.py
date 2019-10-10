@@ -21,10 +21,19 @@ def get_so_pages():
     return
 
 
-def scrape_jobs():
+def scrape_jobs(max_pages, page=0):
+    url = f"{SO_URL}&pg={page}"
+    response = requests.get(url)
+    print(f"Scrapping SO Page: {page}")
+    if response.status_code == 200:
+        soup = BeautifulSoup(response.text, "html.parser")
+        results = soup.findAll("div", {"class": "-job"})
+        for result in results:
+            print(result)
     return
 
 
 def get_so_jobs():
     pages = get_so_pages()
+    scrape_jobs(max_pages=pages)
     print(pages)

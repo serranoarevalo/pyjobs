@@ -45,7 +45,7 @@ def extract_indeed_job(job_html):
 def scrappe_jobs(page, max_pages):
     url = f"{INDEED_URL}&start={page}"
     response = requests.get(url)
-    print(f"Scrapping page: {page}")
+    print(f"Scrapping Indeed Page: {page}")
     if response.status_code == 200:
         soup = BeautifulSoup(response.text, "html.parser")
         results = soup.findAll("div", {"class": "jobsearch-SerpJobCard"})
