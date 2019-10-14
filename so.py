@@ -36,7 +36,13 @@ def extract_job(job_html):
     company = subtitle[0].get_text(strip=True)
     location = subtitle[1].get_text(strip=True)
     location = location.strip("-").strip(" \r").strip("\n")
-    job = {"title": title, "company": company, "location": location}
+    link = job_html.find("h2", {"class": "job-details__spaced"}).find("a")["href"]
+    job = {
+        "title": title,
+        "company": company,
+        "location": location,
+        "apply_link": f"https://stackoverflow.com{link}",
+    }
     return job
 
 
