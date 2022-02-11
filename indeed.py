@@ -17,7 +17,7 @@ def get_indeed_pages():
         higher_page = 0
         for page in all_pages:
             query = parse_qs(page["href"])
-            start, = query.get("start")
+            start = query.get("start")
             if higher_page < int(start):
                 higher_page = int(start)
         return higher_page
